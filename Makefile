@@ -1,3 +1,5 @@
+.PHONY: release build test all
+
 all: build
 
 release:
@@ -9,3 +11,9 @@ build:
 
 test:
 	cargo test
+
+format-nix:
+	rg --files -g '*.nix' -g '!.*' | xargs alejandra
+
+lint-nix: ## Lint Nix files.
+	rg --files -g '*.nix' -g '!.*' | xargs -L 1 statix check --
