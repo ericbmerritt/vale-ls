@@ -44,7 +44,7 @@ impl LanguageServer for Backend {
         self.param_map
             .insert("root".to_string(), Value::String(cwd.clone()));
 
-        self.init(params.initialization_options, cwd).await;
+        self.init(params.initialization_options).await;
         Ok(InitializeResult {
             server_info: None,
             offset_encoding: None,
@@ -380,7 +380,10 @@ impl Backend {
 
         self.update(params.clone());
         if self.cli.is_installed() {
-            match self.cli.run(uri.path(), self.config_path(), self.config_filter()) {
+            match self
+                .cli
+                .run(uri.path(), self.config_path(), self.config_filter())
+            {
                 Ok(result) => {
                     let mut diagnostics = Vec::new();
                     for (_, v) in result.iter() {
@@ -409,7 +412,7 @@ impl Backend {
         }
     }
 
-    async fn init(&self, params: Option<Value>, cwd: String) {
+    async fn init(&self, params: Option<Value>) {
         self.parse_params(params);
         if self.should_install() {
             match self.cli.install_or_update() {
