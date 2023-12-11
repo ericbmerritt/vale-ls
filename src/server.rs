@@ -320,10 +320,19 @@ impl LanguageServer for Backend {
 
         match self.cli.fix(&s) {
             Ok(fixed) => {
-                let alert: vale::ValeAlert = serde_json::from_str(&s).unwrap();
+                let alert: vale::ValeAlert = match serde_json::from_str(&s) {
+                    Ok(raw_alert) => raw_alert,
+                    Err(e) => {
+                        self.client
+                            .log_message(MessageType::ERROR, format!("Error: {}", e))
+                            .await;
+                        return Ok(None);
+                    }
+                };
+
                 let mut range = utils::alert_to_range(alert.clone());
 
-                if !alert.action.name.is_some() {
+                if alert.action.name.is_none() {
                     return Ok(None);
                 }
 
