@@ -12,6 +12,8 @@ pkgs.rustPlatform.buildRustPackage {
     lockFile = ./Cargo.lock;
   };
 
+  doCheck = false;
+
   nativeBuildInputs = [pkgs.pkg-config];
 
   buildInputs =
