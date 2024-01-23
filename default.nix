@@ -15,7 +15,7 @@ pkgs.rustPlatform.buildRustPackage {
   nativeBuildInputs = [pkgs.pkg-config];
 
   buildInputs =
-    [pkgs.openssl.dev]
+    [pkgs.openssl.dev pkgs.cacert]
     ++ lib.optionals pkgs.stdenv.isDarwin (with pkgs.darwin.apple_sdk; [
       frameworks.Security
       frameworks.CoreFoundation
