@@ -1,3 +1,4 @@
+use std::path::{Path, PathBuf};
 use std::{env, str::FromStr};
 
 use ropey::Rope;
@@ -150,6 +151,24 @@ pub(crate) fn alert_to_diagnostic(alert: &vale::ValeAlert) -> Diagnostic {
     d
 }
 
+pub(crate) fn find_dominating_file(start_path: &Path, file_name: &str) -> Option<PathBuf> {
+    let mut current_dir = start_path;
+
+    while current_dir.exists() {
+        let potential_file = current_dir.join(file_name);
+        if potential_file.exists() {
+            return Some(potential_file);
+        }
+
+        // Try to move to the parent directory. If there is no parent, we stop.
+        current_dir = match current_dir.parent() {
+            Some(parent) => parent,
+            None => break,
+        };
+    }
+
+    None
+}
 #[cfg(test)]
 mod tests {
     use super::*;

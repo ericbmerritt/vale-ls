@@ -43,6 +43,28 @@ impl LanguageServer for Backend {
 
         self.param_map
             .insert("root".to_string(), Value::String(cwd.clone()));
+        if !self.param_map.contains_key("config_path") {
+            if let Some(config_path) = utils::find_dominating_file(cwd.as_ref(), ".vale.ini") {
+                self.client
+                    .log_message(
+                        MessageType::INFO,
+                        format!("using .vale.ini at {}", config_path.to_string_lossy()),
+                    )
+                    .await;
+                let _ = self.param_map.insert(
+                    "contains_key".to_string(),
+                    Value::String(config_path.into_os_string().into_string().unwrap()),
+                );
+            } else {
+                self.client
+                    .log_message(MessageType::WARNING, "could not find .vale.ini")
+                    .await;
+            }
+        } else {
+            self.client
+                .log_message(MessageType::INFO, "using pre-configured config file")
+                .await;
+        }
 
         self.init(params.initialization_options).await;
         Ok(InitializeResult {
