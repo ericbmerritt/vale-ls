@@ -35,18 +35,27 @@ pub(crate) struct CompiledRule {
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "PascalCase")]
 pub(crate) struct ValeError {
-    pub path: String,
+    pub path: Option<String>,
     pub text: String,
-    pub line: u32,
-    pub span: u32,
+    pub line: Option<u32>,
+    pub span: Option<u32>,
 }
 
 impl fmt::Display for ValeError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Provide default values for optional fields
+        let path_display = self.path.as_ref().map_or("<no path>", String::as_str);
+        let line_display = self
+            .line
+            .map_or("<no line>".to_string(), |line| line.to_string());
+        let span_display = self
+            .span
+            .map_or("<no span>".to_string(), |span| span.to_string());
+
         write!(
             f,
             "{}:{}:{}: {}",
-            self.path, self.line, self.span, self.text
+            path_display, line_display, span_display, self.text
         )
     }
 }
